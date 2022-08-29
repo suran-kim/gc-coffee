@@ -15,9 +15,10 @@ import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 
-@Transactional
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ProductJdbcRepositoryTest {
 
@@ -28,6 +29,7 @@ class ProductJdbcRepositoryTest {
             null, LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS), LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
 
     @Test
+    @Order(1)
     @DisplayName("상품을 추가할 수 있다.")
     void testInsert() {
         repository.insert(newProduct);
@@ -36,9 +38,9 @@ class ProductJdbcRepositoryTest {
     }
 
     @Test
+    @Order(2)
     @DisplayName("상품을 이름으로 조회할 수 있다.")
     void testFindByName() {
-        repository.insert(newProduct);
         var product = repository.findByName(newProduct.getProductName());
         assertThat(product.isEmpty(), is(false));
     }
@@ -47,7 +49,6 @@ class ProductJdbcRepositoryTest {
     @Order(3)
     @DisplayName("상품을 아이디로 조회할 수 있다.")
     void testFindById() {
-        repository.insert(newProduct);
         var product = repository.findById(newProduct.getProductId());
         assertThat(product.isEmpty(), is(false));
     }
@@ -56,8 +57,28 @@ class ProductJdbcRepositoryTest {
     @Order(4)
     @DisplayName("상품들을 카테고리로 조회할 수 있다.")
     void testFindByCategory() {
-        repository.insert(newProduct);
         var product = repository.findByCategory(Category.COFFEE_BEAN_PACKAGE);
         assertThat(product.isEmpty(), is(false));
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("상품을 수정할 수 있다.")
+    void testUpdate() {
+        newProduct.setProductName("updated-product");
+        repository.update(newProduct);
+
+        var product = repository.findById(newProduct.getProductId());
+        assertThat(product.isEmpty(), is(false));
+        assertThat(product.get().getProductName(), is(newProduct.getProductName()));
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("상품을 전체 삭제한다.")
+    void testDeleteAll() {
+        repository.deleteAll();
+        var all = repository.findAll();
+        assertThat(all.isEmpty(), is(true));
     }
 }
