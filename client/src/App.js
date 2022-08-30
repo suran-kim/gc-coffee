@@ -1,8 +1,9 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProductList } from "./components/ProductList";
 import { Summary } from "./components/Summary";
+import axios from "axios";
 
 function App() {
   // 상태에 접근할 수 있는 변수명, 상태값 바꾸는 함수
@@ -45,6 +46,14 @@ function App() {
           ];
     setItems(updatedItems);
   };
+
+  //컴포넌트가 렌더링 될 때마다 특정 작업을 실행할 수 있도록 하는 Hook
+  //비동기작업은 여기서
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/v1/products")
+      .then((v) => setProducts(v.data));
+  }, []); //빈배열 딱 한번 실행
 
   return (
     <body className="container-fluid">
